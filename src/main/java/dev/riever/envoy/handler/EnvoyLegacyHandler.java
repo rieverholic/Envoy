@@ -3,6 +3,7 @@ package dev.riever.envoy.handler;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.ServerConnection;
 import dev.riever.envoy.config.PlayerInfoForwarding;
+import dev.riever.envoy.protocol.PlayerDataForwarding;
 import dev.riever.envoy.protocol.VelocityInternals;
 import dev.riever.envoy.util.ReflectionUtils;
 import io.netty.channel.ChannelHandlerContext;
@@ -47,13 +48,13 @@ public class EnvoyLegacyHandler extends ChannelOutboundHandlerAdapter {
             PlayerInfoForwarding mode = serverConfig.getOrDefault(serverName, PlayerInfoForwarding.NONE);
             try {
                 if (mode == PlayerInfoForwarding.LEGACY) {
-                    return (String) ReflectionUtils.invoke(serverConn, "createLegacyForwardingAddress");
+                    return PlayerDataForwarding.createLegacyForwardingAddress(serverConn);
                 } else if (mode == PlayerInfoForwarding.BUNGEEGUARD) {
                     byte[] secret = (byte[]) ReflectionUtils.invoke(this.proxy.getConfiguration(), "getForwardingSecret");
-                    return (String) ReflectionUtils.invoke(serverConn, "createBungeeGuardForwardingAddress", byte[].class, secret);
+                    return PlayerDataForwarding.createBungeeGuardForwardingAddress(serverConn, secret);
                 }
-            } catch (ReflectiveOperationException e) {
-                logger.warn("Reflection failed while creating legacy forwarding address: ", e);
+            } catch (Exception e) {
+                logger.warn("Legacy forwarding address creation failed: ", e);
             }
         } else {
             logger.warn("ServerConnection object is null, forwarding player to default vhost");
