@@ -1,9 +1,12 @@
 ## Envoy
-Version: 0.1.0
+
+![Velocity doc showing mix and match forwarding mode impossible](velocity-doc.png)
 
 A Velocity plugin that brings you per-server information forwarding
 
 Hoping one day this plugin becomes [obsolete](https://github.com/PaperMC/Velocity/pull/1655)...
+
+Version: 0.1.0
 
 Tested Velocity versions: 4.1.X, 4.2.X
 
