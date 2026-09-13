@@ -8,7 +8,7 @@ Hoping one day this plugin becomes [obsolete](https://github.com/PaperMC/Velocit
 
 Version: 0.1.0
 
-Tested Velocity versions: 4.1.X, 4.2.X
+Tested Velocity versions: 4.0.X, 4.1.X
 
 ### How to use
 
