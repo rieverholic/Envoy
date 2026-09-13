@@ -16,6 +16,15 @@ Tested Velocity versions: 4.1.X, 4.2.X
 5. Open `config.yml` in the `plugins/envoy` folder and set the `name` and `forwarding-mode` to the desired mode for each of your servers
 6. Restart Velocity
 
+#### Example config
+```yaml
+servers:
+  - name: "vanilla26_2"
+    forwarding-mode: "modern"
+  - name: "gtnh"
+    forwarding-mode: "bungeeguard"
+```
+
 ### Build
 
 ```shell
