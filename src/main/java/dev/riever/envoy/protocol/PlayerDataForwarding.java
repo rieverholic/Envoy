@@ -12,6 +12,25 @@ import java.lang.reflect.Method;
 
 public class PlayerDataForwarding {
 
+    private static final Method CREATE_MODERN_FORWARDING;
+
+    static {
+        try {
+            Class<?> clazz = Class.forName("com.velocitypowered.proxy.connection.PlayerDataForwarding");
+            CREATE_MODERN_FORWARDING = clazz.getDeclaredMethod(
+                    "createForwardingData",
+                    byte[].class,
+                    String.class,
+                    ProtocolVersion.class,
+                    GameProfile.class,
+                    IdentifiedKey.class,
+                    int.class
+            );
+        } catch (ClassNotFoundException | NoSuchMethodException e) {
+            throw new ExceptionInInitializerError(e);
+        }
+    }
+
     public static String createLegacyForwardingAddress(ServerConnection serverConn) throws Exception {
         return (String) ReflectionUtils.invoke(serverConn, "createLegacyForwardingAddress");
     }
@@ -23,17 +42,7 @@ public class PlayerDataForwarding {
     public static byte[] createForwardingData(ServerConnection serverConn, byte[] secret, int version) throws Exception {
         Player player = serverConn.getPlayer();
         String address = (String) ReflectionUtils.invoke(serverConn, "getPlayerRemoteAddressAsString");
-        Class<?> clazz = Class.forName("com.velocitypowered.proxy.connection.PlayerDataForwarding");
-        Method method = clazz.getDeclaredMethod(
-                "createForwardingData",
-                byte[].class,
-                String.class,
-                ProtocolVersion.class,
-                GameProfile.class,
-                IdentifiedKey.class,
-                int.class
-        );
-        ByteBuf buf = (ByteBuf) method.invoke(
+        ByteBuf buf = (ByteBuf) CREATE_MODERN_FORWARDING.invoke(
                 null,
                 secret,
                 address,

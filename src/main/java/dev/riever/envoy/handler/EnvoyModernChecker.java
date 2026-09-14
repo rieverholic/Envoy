@@ -16,6 +16,20 @@ import java.util.Map;
 public class EnvoyModernChecker extends ChannelInboundHandlerAdapter {
 
     private static final Component MODERN_FAIL = Component.translatable("velocity.error.modern-forwarding-failed");
+    private static final Method DISCONNECT_MESSAGE_BUILDER;
+
+    static {
+        try {
+            Class<?> clazz = Class.forName("com.velocitypowered.proxy.connection.util.ConnectionRequestResults");
+            DISCONNECT_MESSAGE_BUILDER = clazz.getDeclaredMethod(
+                    "forDisconnect",
+                    Component.class,
+                    RegisteredServer.class
+            );
+        } catch (ClassNotFoundException | NoSuchMethodException e) {
+            throw new ExceptionInInitializerError(e);
+        }
+    }
 
     private final Map<String, PlayerInfoForwarding> serverConfig;
 
@@ -52,9 +66,7 @@ public class EnvoyModernChecker extends ChannelInboundHandlerAdapter {
         if (serverConn == null) {
             throw new IllegalStateException("ServerConnection is null");
         }
-        Class<?> clazz = Class.forName("com.velocitypowered.proxy.connection.util.ConnectionRequestResults");
-        Method method = clazz.getDeclaredMethod("forDisconnect", Component.class, RegisteredServer.class);
-        Object result = method.invoke(null, MODERN_FAIL, serverConn.getServer());
+        Object result = DISCONNECT_MESSAGE_BUILDER.invoke(null, MODERN_FAIL, serverConn.getServer());
         Object mc = ch.pipeline().get(VelocityInternals.Connections.HANDLER);
         Object handler = ReflectionUtils.invoke(mc, "getActiveSessionHandler");
         Object resultFuture = ReflectionUtils.get(handler, "resultFuture");
