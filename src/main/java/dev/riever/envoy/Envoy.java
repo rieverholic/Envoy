@@ -60,7 +60,7 @@ public class Envoy {
             this.serverConfig.put(server.name(), server.forwardingMode());
         }
         handler = new EnvoyModernHandler(this.server, this.logger);
-        VelocityInjector injector = new VelocityInjector(this.server, this.logger, this.serverConfig);
+        VelocityInjector injector = new VelocityInjector(this.server, this.logger, Map.copyOf(this.serverConfig));
         injector.inject();
     }
 
