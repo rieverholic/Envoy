@@ -24,8 +24,23 @@ public class EnvoyChannelInitializer extends ChannelInitializer<Channel> {
 
     private final ProxyServer proxy;
     private final Map<String, PlayerInfoForwarding> serverConfig;
+    private final PlayerInfoForwarding defaultMode;
     private final ChannelInitializer<?> delegate;
     private final Logger logger;
+
+    public EnvoyChannelInitializer(
+            ProxyServer proxy,
+            Map<String, PlayerInfoForwarding> serverConfig,
+            PlayerInfoForwarding defaultMode,
+            ChannelInitializer<?> delegate,
+            Logger logger
+    ) {
+        this.proxy = proxy;
+        this.serverConfig = serverConfig;
+        this.defaultMode = defaultMode != null ? defaultMode : PlayerInfoForwarding.NONE;
+        this.delegate = delegate;
+        this.logger = logger;
+    }
 
     public EnvoyChannelInitializer(
             ProxyServer proxy,
@@ -33,10 +48,7 @@ public class EnvoyChannelInitializer extends ChannelInitializer<Channel> {
             ChannelInitializer<?> delegate,
             Logger logger
     ) {
-        this.proxy = proxy;
-        this.serverConfig = serverConfig;
-        this.delegate = delegate;
-        this.logger = logger;
+        this(proxy, serverConfig, PlayerInfoForwarding.NONE, delegate, logger);
     }
 
     @Override
@@ -45,12 +57,12 @@ public class EnvoyChannelInitializer extends ChannelInitializer<Channel> {
         channel.pipeline().addAfter(
                 VelocityInternals.Connections.MINECRAFT_ENCODER,
                 "envoy-legacy-forward",
-                new EnvoyLegacyHandler(this.proxy, this.serverConfig, this.logger)
+                new EnvoyLegacyHandler(this.proxy, this.serverConfig, this.defaultMode, this.logger)
         );
         channel.pipeline().addAfter(
                 VelocityInternals.Connections.MINECRAFT_DECODER,
                 "envoy-modern-checker",
-                new EnvoyModernChecker(this.serverConfig)
+                new EnvoyModernChecker(this.serverConfig, this.defaultMode)
         );
     }
 }

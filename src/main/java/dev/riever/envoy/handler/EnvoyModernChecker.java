@@ -32,9 +32,15 @@ public class EnvoyModernChecker extends ChannelInboundHandlerAdapter {
     }
 
     private final Map<String, PlayerInfoForwarding> serverConfig;
+    private final PlayerInfoForwarding defaultMode;
+
+    public EnvoyModernChecker(Map<String, PlayerInfoForwarding> serverConfig, PlayerInfoForwarding defaultMode) {
+        this.serverConfig = serverConfig;
+        this.defaultMode = defaultMode != null ? defaultMode : PlayerInfoForwarding.NONE;
+    }
 
     public EnvoyModernChecker(Map<String, PlayerInfoForwarding> serverConfig) {
-        this.serverConfig = serverConfig;
+        this(serverConfig, PlayerInfoForwarding.NONE);
     }
 
     @Override
@@ -58,7 +64,7 @@ public class EnvoyModernChecker extends ChannelInboundHandlerAdapter {
 
     private boolean isModern(Channel ch) {
         String serverName = VelocityInternals.getServerName(ch);
-        return PlayerInfoForwarding.MODERN.equals(serverConfig.get(serverName));
+        return PlayerInfoForwarding.MODERN.equals(serverConfig.getOrDefault(serverName, this.defaultMode));
     }
 
     private void disconnect(Channel ch) throws Exception {

@@ -18,6 +18,7 @@ public class EnvoyLegacyHandler extends ChannelOutboundHandlerAdapter {
 
     private final ProxyServer proxy;
     private final Map<String, PlayerInfoForwarding> serverConfig;
+    private final PlayerInfoForwarding defaultMode;
     private final Logger logger;
 
     @Override
@@ -36,16 +37,26 @@ public class EnvoyLegacyHandler extends ChannelOutboundHandlerAdapter {
         super.write(ctx, msg, promise);
     }
 
-    public EnvoyLegacyHandler(ProxyServer proxy, Map<String, PlayerInfoForwarding> serverConfig, Logger logger) {
+    public EnvoyLegacyHandler(
+            ProxyServer proxy,
+            Map<String, PlayerInfoForwarding> serverConfig,
+            PlayerInfoForwarding defaultMode,
+            Logger logger
+    ) {
         this.proxy = proxy;
         this.serverConfig = serverConfig;
+        this.defaultMode = defaultMode != null ? defaultMode : PlayerInfoForwarding.NONE;
         this.logger = logger;
+    }
+
+    public EnvoyLegacyHandler(ProxyServer proxy, Map<String, PlayerInfoForwarding> serverConfig, Logger logger) {
+        this(proxy, serverConfig, PlayerInfoForwarding.NONE, logger);
     }
 
     private String addLegacyForwarding(String playerVhost, ServerConnection serverConn) {
         if (serverConn != null) {
             String serverName = serverConn.getServerInfo().getName();
-            PlayerInfoForwarding mode = serverConfig.getOrDefault(serverName, PlayerInfoForwarding.NONE);
+            PlayerInfoForwarding mode = serverConfig.getOrDefault(serverName, this.defaultMode);
             try {
                 if (mode == PlayerInfoForwarding.LEGACY) {
                     return PlayerDataForwarding.createLegacyForwardingAddress(serverConn);

@@ -21,6 +21,7 @@ Tested Velocity versions: 4.0.X, 4.1.X
 
 #### Example config
 ```yaml
+default-forwarding-mode: "none"
 servers:
   - name: "vanilla26_2"
     forwarding-mode: "modern"

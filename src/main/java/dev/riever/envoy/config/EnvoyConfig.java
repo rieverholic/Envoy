@@ -8,6 +8,10 @@ import java.util.List;
 
 @ConfigSerializable
 public record EnvoyConfig(
+        @Setting(value = "default-forwarding-mode")
+        @Comment("Default player information forwarding mode for servers not in the list.")
+        PlayerInfoForwarding defaultForwardingMode,
+
         @Setting
         List<Server> servers
 ) {
@@ -28,7 +32,20 @@ public record EnvoyConfig(
         }
     }
 
+    public EnvoyConfig {
+        if (defaultForwardingMode == null) {
+            defaultForwardingMode = PlayerInfoForwarding.NONE;
+        }
+        if (servers == null) {
+            servers = List.of();
+        }
+    }
+
     public EnvoyConfig() {
-        this(List.of(new Server("", PlayerInfoForwarding.NONE)));
+        this(PlayerInfoForwarding.NONE, List.of(new Server("", PlayerInfoForwarding.NONE)));
+    }
+
+    public EnvoyConfig(List<Server> servers) {
+        this(PlayerInfoForwarding.NONE, servers);
     }
 }

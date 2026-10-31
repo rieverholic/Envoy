@@ -9,17 +9,27 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 
 import java.util.Map;
-import java.util.Set;
 
 public class VelocityInjector {
     private final ProxyServer server;
     private final Logger logger;
     private final Map<String, PlayerInfoForwarding> serverConfig;
+    private final PlayerInfoForwarding defaultMode;
 
-    public VelocityInjector(ProxyServer server, Logger logger, Map<String, PlayerInfoForwarding> serverConfig) {
+    public VelocityInjector(
+            ProxyServer server,
+            Logger logger,
+            Map<String, PlayerInfoForwarding> serverConfig,
+            PlayerInfoForwarding defaultMode
+    ) {
         this.server = server;
         this.logger = logger;
         this.serverConfig = serverConfig;
+        this.defaultMode = defaultMode != null ? defaultMode : PlayerInfoForwarding.NONE;
+    }
+
+    public VelocityInjector(ProxyServer server, Logger logger, Map<String, PlayerInfoForwarding> serverConfig) {
+        this(server, logger, serverConfig, PlayerInfoForwarding.NONE);
     }
 
     public void inject() {
@@ -28,7 +38,7 @@ public class VelocityInjector {
             Object holder = ReflectionUtils.invoke(cm, "getBackendChannelInitializer");
             ChannelInitializer<?> original = (ChannelInitializer<?>) ReflectionUtils.invoke(holder, "get");
             ChannelInitializer<Channel> backendWrapped = new EnvoyChannelInitializer(
-                    this.server, this.serverConfig, original, this.logger);
+                    this.server, this.serverConfig, this.defaultMode, original, this.logger);
             ReflectionUtils.invoke(holder, "set", ChannelInitializer.class, backendWrapped);
         } catch (Throwable t) {
             logger.error("Reflection error: ", t);
