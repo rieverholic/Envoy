@@ -23,7 +23,7 @@ import java.util.Map;
 @Plugin(
         id = "envoy",
         name = "Envoy",
-        version = "0.1.1",
+        version = "0.2.0",
         url = "https://github.com/rieverholic/Envoy",
         description = "A plugin that brings per-server information forwarding to Velocity",
         authors = {"Riever"}

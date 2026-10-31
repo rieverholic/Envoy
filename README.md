@@ -6,9 +6,9 @@ A Velocity plugin that brings you per-server information forwarding
 
 Hoping one day this plugin becomes [obsolete](https://github.com/PaperMC/Velocity/pull/1655)...
 
-Version: 0.1.0
+Version: 0.2.0
 
-Tested Velocity versions: 4.0.X, 4.1.X
+Tested Velocity versions: 4.0.X, 4.1.X, 4.2.X, 4.3.X
 
 ### How to use
 
