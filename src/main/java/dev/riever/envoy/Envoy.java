@@ -34,6 +34,7 @@ public class Envoy {
     private final Path dataDirectory;
 
     private final Map<String, PlayerInfoForwarding> serverConfig;
+    private PlayerInfoForwarding defaultForwardingMode = PlayerInfoForwarding.NONE;
     private EnvoyModernHandler handler;
 
     @Inject
@@ -56,11 +57,12 @@ public class Envoy {
         Path configFile = this.dataDirectory.resolve("config.yml");
         EnvoyConfigManager configManager = new EnvoyConfigManager(configFile, logger);
         EnvoyConfig config = configManager.initialize();
+        this.defaultForwardingMode = config.defaultForwardingMode();
         for (EnvoyConfig.Server server : config.servers()) {
             this.serverConfig.put(server.name(), server.forwardingMode());
         }
         handler = new EnvoyModernHandler(this.server, this.logger);
-        VelocityInjector injector = new VelocityInjector(this.server, this.logger, Map.copyOf(this.serverConfig));
+        VelocityInjector injector = new VelocityInjector(this.server, this.logger, Map.copyOf(this.serverConfig), this.defaultForwardingMode);
         injector.inject();
     }
 
@@ -69,7 +71,8 @@ public class Envoy {
         ServerConnection connection = event.getConnection();
         String serverName = connection.getServerInfo().getName();
         String identifier = event.getIdentifier().getId();
-        if (serverConfig.get(serverName) == PlayerInfoForwarding.MODERN && identifier.equals(VelocityInternals.INFO_CHANNEL)) {
+        PlayerInfoForwarding mode = serverConfig.getOrDefault(serverName, this.defaultForwardingMode);
+        if (mode == PlayerInfoForwarding.MODERN && identifier.equals(VelocityInternals.INFO_CHANNEL)) {
             try {
                 byte[] payload = handler.handle(connection, event.getContents());
                 event.setResult(ServerLoginPluginMessageEvent.ResponseResult.reply(payload));

@@ -17,10 +17,12 @@ Tested Velocity versions: 4.0.X, 4.1.X
 3. Install Envoy jar to `plugins` folder where Velocity lives
 4. Start Velocity to generate the config file
 5. Open `config.yml` in the `plugins/envoy` folder and set the `name` and `forwarding-mode` to the desired mode for each of your servers
-6. Restart Velocity
+6. (Optional) Set `default-forwarding-mode` to the desired mode for servers not in the list
+7. Restart Velocity
 
 #### Example config
 ```yaml
+default-forwarding-mode: "none"
 servers:
   - name: "vanilla26_2"
     forwarding-mode: "modern"

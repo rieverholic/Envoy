@@ -5,6 +5,12 @@ plugins {
 group = "dev.riever"
 version = "0.1.1"
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
 repositories {
     mavenCentral()
     maven {
@@ -17,6 +23,7 @@ dependencies {
     testImplementation(platform("org.junit:junit-bom:6.0.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation("org.spongepowered:configurate-yaml:4.2.0")
     compileOnly("com.velocitypowered:velocity-api:4.1.2-SNAPSHOT")
     annotationProcessor("com.velocitypowered:velocity-api:4.1.2-SNAPSHOT")
     compileOnly("io.netty:netty-all:4.2.16.Final")
