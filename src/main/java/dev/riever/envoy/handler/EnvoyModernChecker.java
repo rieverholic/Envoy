@@ -64,7 +64,8 @@ public class EnvoyModernChecker extends ChannelInboundHandlerAdapter {
 
     private boolean isModern(Channel ch) {
         String serverName = VelocityInternals.getServerName(ch);
-        return PlayerInfoForwarding.MODERN.equals(serverConfig.getOrDefault(serverName, this.defaultMode));
+        PlayerInfoForwarding mode = serverName == null ? defaultMode : serverConfig.getOrDefault(serverName, defaultMode);
+        return PlayerInfoForwarding.MODERN.equals(mode);
     }
 
     private void disconnect(Channel ch) throws Exception {
