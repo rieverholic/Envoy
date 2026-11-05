@@ -24,8 +24,6 @@ public final class Handles {
     static final MethodHandle SERVER_GET_CM = ReflectionUtils.fieldGetter(load("VelocityServer"), "cm");
 
     private static final Class<?> CONNECTION_MANAGER = load("network.ConnectionManager");
-    static final MethodHandle CM_GET_SERVER_HOLDER =
-            getter(CONNECTION_MANAGER, "getServerChannelInitializer");
     static final MethodHandle CM_GET_BACKEND_HOLDER =
             getter(CONNECTION_MANAGER, "getBackendChannelInitializer");
 

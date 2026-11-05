@@ -66,7 +66,6 @@ public class Connections {
         }
         RegisteredServer server = serverConn.getServer();
         Object result = invoke(Handles.FOR_DISCONNECT, reason, server);
-//        Object result = DISCONNECT_MESSAGE_BUILDER.invoke(null, MODERN_FAIL, serverConn.getServer());
         CompletableFuture<Object> resultFuture = (CompletableFuture<Object>) invoke(Handles.LOGIN_RESULT_FUTURE, handler);
         resultFuture.complete(result);
         invoke(Handles.VSC_DISCONNECT, serverConn);
