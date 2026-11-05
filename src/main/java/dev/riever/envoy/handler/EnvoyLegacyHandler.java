@@ -3,9 +3,9 @@ package dev.riever.envoy.handler;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.ServerConnection;
 import dev.riever.envoy.config.PlayerInfoForwarding;
-import dev.riever.envoy.protocol.PlayerDataForwarding;
-import dev.riever.envoy.protocol.VelocityInternals;
-import dev.riever.envoy.util.ReflectionUtils;
+import dev.riever.envoy.velocity.Connections;
+import dev.riever.envoy.velocity.Packets;
+import dev.riever.envoy.velocity.PlayerDataForwarding;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOutboundHandlerAdapter;
 import io.netty.channel.ChannelPromise;
@@ -23,14 +23,14 @@ public class EnvoyLegacyHandler extends ChannelOutboundHandlerAdapter {
 
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
-        if (msg != null && msg.getClass().getSimpleName().equals("HandshakePacket")) {
+        if (Packets.isHandshake(msg)) {
             try {
-                String playerVhost = (String) ReflectionUtils.invoke(msg, "getServerAddress");
-                ServerConnection serverConn = VelocityInternals.getVelocityServerConnection(ctx.channel());
+                String playerVhost = Packets.getHandshakeServerAddress(msg);
+                ServerConnection serverConn = Connections.getVelocityServerConnection(ctx.channel());
                 String fakeVhost = addLegacyForwarding(playerVhost, serverConn);
-                ReflectionUtils.invoke(msg, "setServerAddress", String.class, fakeVhost);
-            } catch (Throwable t) {
-                // :P
+                Packets.setHandshakeServerAddress(msg, fakeVhost);
+            } catch (RuntimeException e) {
+                logger.warn("Failed to rewrite the handshake address: ", e);
             }
             ctx.pipeline().remove(this);
         }
@@ -61,7 +61,7 @@ public class EnvoyLegacyHandler extends ChannelOutboundHandlerAdapter {
                 if (mode == PlayerInfoForwarding.LEGACY) {
                     return PlayerDataForwarding.createLegacyForwardingAddress(serverConn);
                 } else if (mode == PlayerInfoForwarding.BUNGEEGUARD) {
-                    byte[] secret = (byte[]) ReflectionUtils.invoke(this.proxy.getConfiguration(), "getForwardingSecret");
+                    byte[] secret = (byte[]) PlayerDataForwarding.getForwardingSecret(this.proxy.getConfiguration());
                     return PlayerDataForwarding.createBungeeGuardForwardingAddress(serverConn, secret);
                 }
             } catch (Exception e) {

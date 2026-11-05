@@ -13,7 +13,7 @@ import dev.riever.envoy.config.EnvoyConfigManager;
 import dev.riever.envoy.config.PlayerInfoForwarding;
 import dev.riever.envoy.handler.EnvoyModernHandler;
 import dev.riever.envoy.inject.VelocityInjector;
-import dev.riever.envoy.protocol.VelocityInternals;
+import dev.riever.envoy.velocity.PlayerDataForwarding;
 import org.slf4j.Logger;
 
 import java.nio.file.Path;
@@ -23,7 +23,7 @@ import java.util.Map;
 @Plugin(
         id = "envoy",
         name = "Envoy",
-        version = "0.2.0",
+        version = BuildConstants.VERSION,
         url = "https://github.com/rieverholic/Envoy",
         description = "A plugin that brings per-server information forwarding to Velocity",
         authors = {"Riever"}
@@ -50,7 +50,7 @@ public class Envoy {
 
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
-        if (VelocityInternals.getForwardConfig(this.server.getConfiguration()) != PlayerInfoForwarding.NONE) {
+        if (PlayerDataForwarding.getForwardConfig(this.server.getConfiguration()) != PlayerInfoForwarding.NONE) {
             logger.warn("Information forwarding must be disabled in root configuration! Envoy will be no-op.");
             return;
         }
@@ -72,7 +72,7 @@ public class Envoy {
         String serverName = connection.getServerInfo().getName();
         String identifier = event.getIdentifier().getId();
         PlayerInfoForwarding mode = serverConfig.getOrDefault(serverName, this.defaultForwardingMode);
-        if (mode == PlayerInfoForwarding.MODERN && identifier.equals(VelocityInternals.INFO_CHANNEL)) {
+        if (mode == PlayerInfoForwarding.MODERN && identifier.equals(PlayerDataForwarding.INFO_CHANNEL)) {
             try {
                 byte[] payload = handler.handle(connection, event.getContents());
                 event.setResult(ServerLoginPluginMessageEvent.ResponseResult.reply(payload));

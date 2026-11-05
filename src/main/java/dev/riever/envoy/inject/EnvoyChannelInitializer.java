@@ -4,7 +4,7 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import dev.riever.envoy.config.PlayerInfoForwarding;
 import dev.riever.envoy.handler.EnvoyLegacyHandler;
 import dev.riever.envoy.handler.EnvoyModernChecker;
-import dev.riever.envoy.protocol.VelocityInternals;
+import dev.riever.envoy.velocity.Connections;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import java.lang.reflect.Method;
@@ -55,12 +55,12 @@ public class EnvoyChannelInitializer extends ChannelInitializer<Channel> {
     protected void initChannel(Channel channel) throws Exception {
         INIT_CHANNEL.invoke(this.delegate, channel);
         channel.pipeline().addAfter(
-                VelocityInternals.Connections.MINECRAFT_ENCODER,
+                Connections.MINECRAFT_ENCODER,
                 "envoy-legacy-forward",
                 new EnvoyLegacyHandler(this.proxy, this.serverConfig, this.defaultMode, this.logger)
         );
         channel.pipeline().addAfter(
-                VelocityInternals.Connections.MINECRAFT_DECODER,
+                Connections.MINECRAFT_DECODER,
                 "envoy-modern-checker",
                 new EnvoyModernChecker(this.serverConfig, this.defaultMode)
         );
