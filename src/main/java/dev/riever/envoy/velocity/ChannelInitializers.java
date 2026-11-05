@@ -25,12 +25,6 @@ public class ChannelInitializers {
     }
 
     private static void replaceInitializer(MethodHandle setMethod, Object holder, ChannelInitializer<Channel> ci) {
-        try {
-            invoke(setMethod, holder, ci);
-        } catch (RuntimeException | Error e) {
-            throw e;
-        } catch (Throwable t) {
-            throw new IllegalStateException(t);
-        }
+        invoke(setMethod, holder, ci);
     }
 }

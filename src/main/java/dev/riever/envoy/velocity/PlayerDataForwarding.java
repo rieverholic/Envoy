@@ -1,15 +1,10 @@
 package dev.riever.envoy.velocity;
 
-import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ServerConnection;
 import com.velocitypowered.api.proxy.config.ProxyConfig;
-import com.velocitypowered.api.proxy.crypto.IdentifiedKey;
-import com.velocitypowered.api.util.GameProfile;
 import dev.riever.envoy.config.PlayerInfoForwarding;
 import io.netty.buffer.ByteBuf;
-
-import java.lang.reflect.Method;
 
 import static dev.riever.envoy.util.ReflectionUtils.invoke;
 

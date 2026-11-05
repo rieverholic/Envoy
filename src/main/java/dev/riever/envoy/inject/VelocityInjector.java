@@ -3,7 +3,6 @@ package dev.riever.envoy.inject;
 import com.velocitypowered.api.proxy.ProxyServer;
 import dev.riever.envoy.config.PlayerInfoForwarding;
 import dev.riever.envoy.velocity.ChannelInitializers;
-import dev.riever.envoy.velocity.VelocitySupport;
 import org.slf4j.Logger;
 
 import io.netty.channel.Channel;

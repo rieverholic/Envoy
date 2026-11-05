@@ -10,7 +10,10 @@ import net.kyori.adventure.text.Component;
 
 import java.lang.invoke.MethodHandle;
 
-public final class Handles {
+final class Handles {
+
+    private Handles() {}
+
     private static final String PKG = "com.velocitypowered.proxy.";
 
     static final Class<?> MINECRAFT_CONNECTION = load("connection.MinecraftConnection");

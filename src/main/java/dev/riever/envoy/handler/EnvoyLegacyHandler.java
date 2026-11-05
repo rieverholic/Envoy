@@ -61,7 +61,7 @@ public class EnvoyLegacyHandler extends ChannelOutboundHandlerAdapter {
                 if (mode == PlayerInfoForwarding.LEGACY) {
                     return PlayerDataForwarding.createLegacyForwardingAddress(serverConn);
                 } else if (mode == PlayerInfoForwarding.BUNGEEGUARD) {
-                    byte[] secret = (byte[]) PlayerDataForwarding.getForwardingSecret(this.proxy.getConfiguration());
+                    byte[] secret = PlayerDataForwarding.getForwardingSecret(this.proxy.getConfiguration());
                     return PlayerDataForwarding.createBungeeGuardForwardingAddress(serverConn, secret);
                 }
             } catch (Exception e) {
