@@ -23,13 +23,21 @@ dependencies {
     testImplementation(platform("org.junit:junit-bom:6.0.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    testImplementation("org.spongepowered:configurate-yaml:4.2.0")
-    compileOnly("com.velocitypowered:velocity-api:4.1.2-SNAPSHOT")
-    annotationProcessor("com.velocitypowered:velocity-api:4.1.2-SNAPSHOT")
-    compileOnly("io.netty:netty-all:4.2.16.Final")
-    compileOnly("org.spongepowered:configurate-yaml:4.2.0")
+    compileOnly("com.velocitypowered:velocity-api:4.1.1")
+    annotationProcessor("com.velocitypowered:velocity-api:4.1.1")
+    compileOnly("io.netty:netty-all:4.2.20.Final")
 }
 
 tasks.test {
     useJUnitPlatform()
 }
+
+val generateTemplates = tasks.register<Copy>("generateTemplates") {
+    description = "Generate build constants"
+    val props = mapOf("version" to project.version)
+    inputs.properties(props)
+    from(file("src/main/templates"))
+    into(layout.buildDirectory.dir("generated/sources/templates"))
+    expand(props)
+}
+sourceSets.main { java.srcDir(generateTemplates.map { it.outputs }) }

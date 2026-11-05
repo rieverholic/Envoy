@@ -1,35 +1,19 @@
 package dev.riever.envoy.handler;
 
 import com.velocitypowered.api.proxy.ServerConnection;
-import com.velocitypowered.api.proxy.server.RegisteredServer;
 import dev.riever.envoy.config.PlayerInfoForwarding;
-import dev.riever.envoy.protocol.VelocityInternals;
-import dev.riever.envoy.util.ReflectionUtils;
+import dev.riever.envoy.velocity.Connections;
+import dev.riever.envoy.velocity.Packets;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import net.kyori.adventure.text.Component;
 
-import java.lang.reflect.Method;
 import java.util.Map;
 
 public class EnvoyModernChecker extends ChannelInboundHandlerAdapter {
 
     private static final Component MODERN_FAIL = Component.translatable("velocity.error.modern-forwarding-failed");
-    private static final Method DISCONNECT_MESSAGE_BUILDER;
-
-    static {
-        try {
-            Class<?> clazz = Class.forName("com.velocitypowered.proxy.connection.util.ConnectionRequestResults");
-            DISCONNECT_MESSAGE_BUILDER = clazz.getDeclaredMethod(
-                    "forDisconnect",
-                    Component.class,
-                    RegisteredServer.class
-            );
-        } catch (ClassNotFoundException | NoSuchMethodException e) {
-            throw new ExceptionInInitializerError(e);
-        }
-    }
 
     private final Map<String, PlayerInfoForwarding> serverConfig;
     private final PlayerInfoForwarding defaultMode;
@@ -50,7 +34,7 @@ public class EnvoyModernChecker extends ChannelInboundHandlerAdapter {
             ctx.fireChannelRead(msg);
             return;
         }
-        if (msg.getClass().getSimpleName().equals("ServerLoginSuccessPacket")) {
+        if (Packets.isServerLoginSuccess(msg)) {
             if (Boolean.TRUE.equals(ctx.channel().attr(EnvoyModernHandler.INFO_FORWARDED).get())) {
                 ctx.pipeline().remove(this);
                 ctx.fireChannelRead(msg);
@@ -63,21 +47,16 @@ public class EnvoyModernChecker extends ChannelInboundHandlerAdapter {
     }
 
     private boolean isModern(Channel ch) {
-        String serverName = VelocityInternals.getServerName(ch);
+        String serverName = Connections.getServerName(ch);
         PlayerInfoForwarding mode = serverName == null ? defaultMode : serverConfig.getOrDefault(serverName, defaultMode);
         return PlayerInfoForwarding.MODERN.equals(mode);
     }
 
-    private void disconnect(Channel ch) throws Exception {
-        ServerConnection serverConn = VelocityInternals.getVelocityServerConnection(ch);
+    private void disconnect(Channel ch) {
+        ServerConnection serverConn = Connections.getVelocityServerConnection(ch);
         if (serverConn == null) {
             throw new IllegalStateException("ServerConnection is null");
         }
-        Object result = DISCONNECT_MESSAGE_BUILDER.invoke(null, MODERN_FAIL, serverConn.getServer());
-        Object mc = ch.pipeline().get(VelocityInternals.Connections.HANDLER);
-        Object handler = ReflectionUtils.invoke(mc, "getActiveSessionHandler");
-        Object resultFuture = ReflectionUtils.get(handler, "resultFuture");
-        ReflectionUtils.invoke(resultFuture, "complete", Object.class, result);
-        ReflectionUtils.invoke(serverConn, "disconnect");
+        Connections.disconnect(ch, serverConn, MODERN_FAIL);
     }
 }

@@ -2,8 +2,8 @@ package dev.riever.envoy.handler;
 
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.ServerConnection;
-import dev.riever.envoy.protocol.PlayerDataForwarding;
-import dev.riever.envoy.util.ReflectionUtils;
+import dev.riever.envoy.velocity.Connections;
+import dev.riever.envoy.velocity.PlayerDataForwarding;
 import io.netty.channel.Channel;
 import io.netty.util.AttributeKey;
 
@@ -21,25 +21,20 @@ public class EnvoyModernHandler {
         this.logger = logger;
     }
 
-    public byte[] handle(ServerConnection serverConn, byte[] payload) throws Exception {
+    public byte[] handle(ServerConnection serverConn, byte[] payload) {
         int version = payload.length == 1 ? payload[0] : 1;
-        byte[] secret = (byte[]) ReflectionUtils.invoke(this.proxy.getConfiguration(), "getForwardingSecret");
+        byte[] secret = PlayerDataForwarding.getForwardingSecret(proxy.getConfiguration());
         return PlayerDataForwarding.createForwardingData(serverConn, secret, version);
     }
 
     public void setInfoForwarded(ServerConnection serverConn) {
         try {
-            Object mc = ReflectionUtils.invoke(serverConn, "getConnection");
-            if (mc == null) {
-                return;
+            Channel channel = Connections.getChannel(serverConn);
+            if (channel != null) {
+                channel.attr(INFO_FORWARDED).set(true);
             }
-            Channel channel = (Channel) ReflectionUtils.invoke(mc, "getChannel");
-            if (channel == null) {
-                return;
-            }
-            channel.attr(EnvoyModernHandler.INFO_FORWARDED).set(true);
-        } catch (Throwable t) {
-            logger.error("Failed to set info forwarded", t);
+        } catch (RuntimeException e) {
+            logger.error("Failed to set info forwarded", e);
         }
     }
 }

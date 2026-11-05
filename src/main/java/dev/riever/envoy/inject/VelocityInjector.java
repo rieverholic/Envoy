@@ -2,7 +2,7 @@ package dev.riever.envoy.inject;
 
 import com.velocitypowered.api.proxy.ProxyServer;
 import dev.riever.envoy.config.PlayerInfoForwarding;
-import dev.riever.envoy.util.ReflectionUtils;
+import dev.riever.envoy.velocity.ChannelInitializers;
 import org.slf4j.Logger;
 
 import io.netty.channel.Channel;
@@ -33,15 +33,9 @@ public class VelocityInjector {
     }
 
     public void inject() {
-        try {
-            Object cm = ReflectionUtils.get(this.server, "cm");
-            Object holder = ReflectionUtils.invoke(cm, "getBackendChannelInitializer");
-            ChannelInitializer<?> original = (ChannelInitializer<?>) ReflectionUtils.invoke(holder, "get");
-            ChannelInitializer<Channel> backendWrapped = new EnvoyChannelInitializer(
-                    this.server, this.serverConfig, this.defaultMode, original, this.logger);
-            ReflectionUtils.invoke(holder, "set", ChannelInitializer.class, backendWrapped);
-        } catch (Throwable t) {
-            logger.error("Reflection error: ", t);
-        }
+        ChannelInitializer<Channel> original = ChannelInitializers.getBackendInitializer(server);
+        ChannelInitializer<Channel> wrapped = new EnvoyChannelInitializer(
+                this.server, this.serverConfig, this.defaultMode, original, this.logger);
+        ChannelInitializers.setBackendInitializer(server, wrapped);
     }
 }
