@@ -53,6 +53,7 @@ public final class Handles {
             "forDisconnect", Component.class, RegisteredServer.class);
 
     private static final Class<?> SERVER_CONNECTION = load("connection.backend.VelocityServerConnection");
+    static final MethodHandle VSC_GET_CONNECTION = getter(SERVER_CONNECTION, "getConnection");
     static final MethodHandle VSC_DISCONNECT = ReflectionUtils.method(SERVER_CONNECTION, "disconnect");
     static final MethodHandle VSC_GET_PLAYER_REMOTE_ADDRESS =
             ReflectionUtils.declaredMethod(SERVER_CONNECTION, "getPlayerRemoteAddressAsString");

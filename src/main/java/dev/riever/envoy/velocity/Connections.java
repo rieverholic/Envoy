@@ -45,7 +45,7 @@ public class Connections {
     }
 
     public static Channel getChannel(ServerConnection serverConn) {
-        Object mc = invoke(Handles.MC_GET_ASSOCIATION, serverConn);
+        Object mc = invoke(Handles.VSC_GET_CONNECTION, serverConn);
         return mc == null ? null : (Channel) invoke(Handles.MC_GET_CHANNEL, mc);
     }
 

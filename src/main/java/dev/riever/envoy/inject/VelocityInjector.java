@@ -34,13 +34,6 @@ public class VelocityInjector {
     }
 
     public void inject() {
-        try {
-            VelocitySupport.verify();
-        } catch (IllegalStateException e) {
-            logger.error("Failed to inject.", e);
-            return;
-        }
-
         ChannelInitializer<Channel> original = ChannelInitializers.getBackendInitializer(server);
         ChannelInitializer<Channel> wrapped = new EnvoyChannelInitializer(
                 this.server, this.serverConfig, this.defaultMode, original, this.logger);

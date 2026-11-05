@@ -14,6 +14,7 @@ import dev.riever.envoy.config.PlayerInfoForwarding;
 import dev.riever.envoy.handler.EnvoyModernHandler;
 import dev.riever.envoy.inject.VelocityInjector;
 import dev.riever.envoy.velocity.PlayerDataForwarding;
+import dev.riever.envoy.velocity.VelocitySupport;
 import org.slf4j.Logger;
 
 import java.nio.file.Path;
@@ -50,6 +51,12 @@ public class Envoy {
 
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
+        try {
+            VelocitySupport.verify();
+        } catch (IllegalStateException e) {
+            logger.error("Failed to initialize Envoy!", e);
+            return;
+        }
         if (PlayerDataForwarding.getForwardConfig(this.server.getConfiguration()) != PlayerInfoForwarding.NONE) {
             logger.warn("Information forwarding must be disabled in root configuration! Envoy will be no-op.");
             return;
